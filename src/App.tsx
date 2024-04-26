@@ -3,6 +3,7 @@ import { Input } from "./components/ui/input"
 import { useEffect, useState } from "react"
 import { useDebounce } from "./hooks/useDebounce"
 import { Button } from "./components/ui/button"
+import { HiMiniXCircle } from "react-icons/hi2"
 
 export type NpmPackage = {
 	name: string
@@ -72,6 +73,9 @@ const NpmSearch = () => {
 		setTags((prevTags) => [...prevTags, pkg])
 		setQuery("")
 	}
+	const handleRemoveTag = (name: string) => {
+		setTags(tags.filter((pkg) => pkg.name !== name))
+	}
 
 	return (
 		<div>
@@ -83,6 +87,9 @@ const NpmSearch = () => {
 							key={pkg.name}
 						>
 							{pkg.name}
+							<button onClick={() => handleRemoveTag(pkg.name)}>
+								<HiMiniXCircle className="" />
+							</button>
 						</span>
 					))}
 				</div>
