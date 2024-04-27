@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useDebounce } from "./hooks/useDebounce"
 import { Button } from "./components/ui/button"
 import { HiMiniXCircle } from "react-icons/hi2"
+import { Card } from "./components/ui/card"
 
 export type NpmPackage = {
 	name: string
@@ -44,10 +45,17 @@ export type SearchResult = {
 	searchScore: number
 }
 
+const Tag = ({ children }: { children: React.ReactNode }) => (
+	<span className="m-1 flex cursor-pointer flex-wrap items-center justify-between rounded-md bg-ring py-2 pl-4 pr-2 text-sm font-medium text-destructive-foreground">
+		{children}
+	</span>
+)
+
 const NpmSearch = () => {
 	const [query, setQuery] = useState("")
 	const [packages, setPackages] = useState<NpmPackage[]>([])
 	const [tags, setTags] = useState<NpmPackage[]>([])
+	const [showResults, setShowResults] = useState(false)
 
 	const fetchNpmPackages = useDebounce((searchQuery: string) => {
 		if (searchQuery) {
@@ -77,44 +85,72 @@ const NpmSearch = () => {
 		setTags(tags.filter((pkg) => pkg.name !== name))
 	}
 
+	useEffect(() => {
+		setShowResults(packages.length > 0)
+	}, [packages])
+
+	useEffect(() => {
+		if (!query) setShowResults(false)
+	}, [query])
+
 	return (
 		<div>
 			{tags.length > 0 && (
 				<div className="mb-3 flex flex-wrap rounded-lg bg-muted px-2 pb-11 pt-2">
 					{tags.map((pkg) => (
-						<span
-							className="m-1 flex cursor-pointer flex-wrap items-center justify-between rounded-md bg-ring p-2 text-sm font-medium text-destructive-foreground"
-							key={pkg.name}
-						>
+						<Tag key={pkg.name}>
 							{pkg.name}
 							<button onClick={() => handleRemoveTag(pkg.name)}>
-								<HiMiniXCircle className="" />
+								<HiMiniXCircle className="ml-1 size-6 hover:text-red-400" />
 							</button>
-						</span>
+						</Tag>
 					))}
 				</div>
 			)}
-			<Input
-				type="text"
-				value={query}
-				onChange={(e) => setQuery(e.target.value)}
-				autoComplete="off"
-				placeholder="Search for a package"
-			/>
-			{packages.map((pkg) => (
-				<Button
-					key={pkg.name}
-					type="button"
-					variant="ghost"
-					className="flex w-full items-center justify-between text-left"
-					onClick={() => {
-						handleSelectPackage(pkg)
-					}}
-					disabled={tags.includes(pkg)}
-				>
-					<span>{pkg.name}</span>
-				</Button>
-			))}
+			<div className="mt-1 flex w-full flex-col items-center text-sm">
+				<div className="relative w-full">
+					<div className="w-full sm:mb-2">
+						<Input
+							type="text"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							autoComplete="off"
+							placeholder="Search for a package"
+						/>{" "}
+					</div>
+					{showResults ? (
+						<div className="absolute z-10 w-full">
+							<Card
+								className="mt-1 max-h-[400px] w-full overflow-y-auto overflow-x-hidden
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
+  [&::-webkit-scrollbar-track]:rounded-full
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  [&::-webkit-scrollbar]:w-2"
+							>
+								{packages.map((pkg) => (
+									<Button
+										key={pkg.name}
+										type="button"
+										variant="ghost"
+										className="flex w-full items-center justify-between text-left"
+										onClick={() => {
+											handleSelectPackage(pkg)
+										}}
+										disabled={tags.includes(pkg)}
+									>
+										<span>{pkg.name}</span>
+									</Button>
+								))}
+							</Card>
+						</div>
+					) : (
+						<div></div>
+					)}
+				</div>
+			</div>
 		</div>
 	)
 }
