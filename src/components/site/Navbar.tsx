@@ -24,14 +24,14 @@ export function Navbar() {
 							<nav className="flex items-center space-x-1">
 								<ThemeToggle />
 								<a
-									href="https://www.youtube.com/@m6io"
+									href="https://www.youtube.com"
 									target="_blank"
 									className="size-10 p-2  hover:text-[#ff0000] dark:hover:text-[#ff0000]" // Brand color from https://brandcolors.net/b/youtube
 								>
 									<SiYoutube className="size-full" />
 								</a>
 								<a
-									href="https://www.github.com/m6io"
+									href="https://www.github.com/wsarsou"
 									target="_blank"
 									className="size-10 p-2 hover:text-[#4078c0] dark:hover:text-[#4078c0]" // Brand color from https://brandcolors.net/b/github
 								>
