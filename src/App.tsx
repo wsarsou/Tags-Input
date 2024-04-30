@@ -1,10 +1,16 @@
 import { Layout } from "@/components/site/Layout"
 import { Input } from "./components/ui/input"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDebounce } from "./hooks/useDebounce"
 import { Button } from "./components/ui/button"
 import { HiMiniXCircle } from "react-icons/hi2"
-import { Card } from "./components/ui/card"
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "./components/ui/card"
 
 export type NpmPackage = {
 	name: string
@@ -57,6 +63,35 @@ const NpmSearch = () => {
 	const [tags, setTags] = useState<NpmPackage[]>([])
 	const [showResults, setShowResults] = useState(false)
 
+	const searchRef = useRef<HTMLDivElement>(null)
+
+	const handleEscape = (event: KeyboardEvent) => {
+		if (event.key === "Escape") {
+			setQuery("")
+			setShowResults(false)
+		}
+	}
+
+	const handleClickOutside = (event: MouseEvent) => {
+		if (
+			searchRef.current &&
+			!searchRef.current.contains(event.target as Node)
+		) {
+			setQuery("")
+			setShowResults(false)
+		}
+	}
+
+	useEffect(() => {
+		window.addEventListener("keydown", handleEscape)
+		document.addEventListener("mousedown", handleClickOutside)
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside)
+			window.removeEventListener("keydown", handleEscape)
+		}
+	}, [])
+
 	const fetchNpmPackages = useDebounce((searchQuery: string) => {
 		if (searchQuery) {
 			fetch(`https://registry.npmjs.org/-/v1/search?text=${searchQuery}`)
@@ -94,7 +129,7 @@ const NpmSearch = () => {
 	}, [query])
 
 	return (
-		<div>
+		<div ref={searchRef}>
 			{tags.length > 0 && (
 				<div className="mb-3 flex flex-wrap rounded-lg bg-muted px-2 pb-11 pt-2">
 					{tags.map((pkg) => (
@@ -157,7 +192,17 @@ const NpmSearch = () => {
 const App = () => {
 	return (
 		<Layout>
-			<NpmSearch />
+			<Card>
+				<CardHeader>
+					<CardTitle>Tags Input Component with NPM Search</CardTitle>
+					<CardDescription>
+						Add NPM packages as tags to your project!
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<NpmSearch />
+				</CardContent>
+			</Card>
 		</Layout>
 	)
 }
